@@ -47,7 +47,7 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
 
 
-def init_bb_imgs():
+def init_bb_imgs() -> tuple[list, list[int]]:
     """
     戻り値：10段階の大きさの爆弾と加速度
     """
@@ -62,7 +62,7 @@ def init_bb_imgs():
     return bb_imgs,bb_accs
 
 
-def get_kk_imgs():
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """
     戻り値：角度に応じたこうかとんの向きの辞書
     """
