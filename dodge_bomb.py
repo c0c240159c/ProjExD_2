@@ -43,6 +43,17 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
 
 
+def init_bb_imgs():
+    bb_imgs = []
+    for r in range(1,11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        bb_imgs.append(bb_img)
+    bb_accs = [a for a in range(1,11)]
+
+    return bb_imgs,bb_accs
+
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -59,6 +70,7 @@ def main():
     kk_rct.center = 300, 200
     clock = pg.time.Clock()
     tmr = 0
+    bb_imgs, bb_accs = init_bb_imgs() # リスト取得
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -87,14 +99,24 @@ def main():
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) # 移動取り消し
-        
         screen.blit(kk_img, kk_rct)
+
+        bb_img = bb_imgs[min(tmr//500, 9)] # 大きさの変更
+        avx = vx*bb_accs[min(tmr//500, 9)]
+        avy = vy*bb_accs[min(tmr//500, 9)] # 速度変更
+        bb_rct.width = bb_img.get_rect().width # 横判定の変更
+        bb_rct.height = bb_img.get_rect().height #縦判定の変更
         yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx *= -1
+            avx *= -1
         if not tate:
             vy *= -1
-        bb_rct.move_ip(vx,vy)
+            avy *= -1
+        if abs(vx) > abs(avx): # 絶対値vxが絶対値avxより大きいならvxとvyで、でなければavxとavyで動かす
+            bb_rct.move_ip(vx,vy)
+        else:
+            bb_rct.move_ip(avx,avy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
         tmr += 1
