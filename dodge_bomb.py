@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+import time
 import pygame as pg
 
 
@@ -11,7 +12,7 @@ DELTA = {pg.K_UP:(0,-5),pg.K_DOWN:(0,5),
           pg.K_LEFT:(-5,0),pg.K_RIGHT:(5,0),}
 
 
-def Check_Bound(rct: pg.Rect) -> tuple[bool, bool]:
+def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     """
     引数：こうかとんrectまたは爆弾rect
     値：判定結果タプル
@@ -23,6 +24,24 @@ def Check_Bound(rct: pg.Rect) -> tuple[bool, bool]:
     if rct.top <0 or HEIGHT < rct.bottom:
         tate = False # 縦方向判定
     return yoko, tate
+
+
+def gameover(screen: pg.Surface) -> None:
+    font = pg.font.Font(None, 80)
+    txt = font.render("gameover",True, (255, 255, 255)) # テキスト
+
+    k_cry_img = pg.image.load("fig/8.png") # こうかとん
+
+    go_screen = pg.Surface((WIDTH, HEIGHT)) # 黒スクリーン
+    go_screen.fill((0, 0, 0))
+    go_screen.set_alpha(160)
+
+    go_screen.blit(txt, [400, 275]) 
+    go_screen.blit(k_cry_img, [325, 275])
+    go_screen.blit(k_cry_img, [700, 275]) # 描写
+    screen.blit(go_screen, [0, 0])
+    pg.display.update()
+
 
 
 def main():
@@ -45,7 +64,8 @@ def main():
             if event.type == pg.QUIT: 
                 return
         if kk_rct.colliderect(bb_rct): # 衝突判定
-            print("ゲームオーバー")
+            gameover(screen)
+            time.sleep(5)
             return
         screen.blit(bg_img, [0, 0]) 
 
@@ -65,11 +85,11 @@ def main():
                 sum_mv[1] += mv[1] # 縦方向
 
         kk_rct.move_ip(sum_mv)
-        if Check_Bound(kk_rct) != (True, True):
+        if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) # 移動取り消し
         
         screen.blit(kk_img, kk_rct)
-        yoko, tate = Check_Bound(bb_rct)
+        yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx *= -1
         if not tate:
