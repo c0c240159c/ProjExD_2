@@ -11,6 +11,20 @@ DELTA = {pg.K_UP:(0,-5),pg.K_DOWN:(0,5),
           pg.K_LEFT:(-5,0),pg.K_RIGHT:(5,0),}
 
 
+def Check_Bound(rct: pg.Rect) -> tuple[bool, bool]:
+    """
+    引数：こうかとんrectまたは爆弾rect
+    値：判定結果タプル
+    画面内ならTrue、外ならFalse
+    """
+    yoko, tate = True, True
+    if rct.left < 0 or WIDTH < rct.right:
+        yoko = False # 横方向判定
+    if rct.top <0 or HEIGHT < rct.bottom:
+        tate = False # 縦方向判定
+    return yoko, tate
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -44,11 +58,19 @@ def main():
         #     sum_mv[0] += 5
         for k, mv in DELTA.items():
             if key_lst[k]:
-                sum_mv[0] += [0] # 横方向
-                sum_mv[1] += [1] # 縦方向
+                sum_mv[0] += mv[0] # 横方向
+                sum_mv[1] += mv[1] # 縦方向
 
         kk_rct.move_ip(sum_mv)
+        if Check_Bound(kk_rct) != (True, True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) # 移動取り消し
+        
         screen.blit(kk_img, kk_rct)
+        yoko, tate = Check_Bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
         bb_rct.move_ip(vx,vy)
         screen.blit(bb_img, bb_rct)
         pg.display.update()
