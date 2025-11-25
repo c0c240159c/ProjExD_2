@@ -27,6 +27,10 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
 
 
 def gameover(screen: pg.Surface) -> None:
+    """
+    引数：スクリーンサーフェス
+    戻り値：黒背景にgameoverとこうかとんの画像
+    """
     font = pg.font.Font(None, 80)
     txt = font.render("gameover",True, (255, 255, 255)) # テキスト
 
@@ -34,7 +38,7 @@ def gameover(screen: pg.Surface) -> None:
 
     go_screen = pg.Surface((WIDTH, HEIGHT)) # 黒スクリーン
     go_screen.fill((0, 0, 0))
-    go_screen.set_alpha(160)
+    go_screen.set_alpha(175)
 
     go_screen.blit(txt, [400, 275]) 
     go_screen.blit(k_cry_img, [325, 275])
@@ -44,6 +48,9 @@ def gameover(screen: pg.Surface) -> None:
 
 
 def init_bb_imgs():
+    """
+    戻り値：10段階の大きさの爆弾と加速度
+    """
     bb_imgs = []
     for r in range(1,11):
         bb_img = pg.Surface((20*r, 20*r))
@@ -55,6 +62,26 @@ def init_bb_imgs():
     return bb_imgs,bb_accs
 
 
+def get_kk_imgs():
+    """
+    戻り値：角度に応じたこうかとんの向きの辞書
+    """
+    kk_img = pg.image.load("fig/3.png")
+    kk_img = pg.transform.flip(kk_img,True,False)
+    kk_dict = {
+        ( 0, 0):pg.transform.rotozoom(kk_img,  0,0.9), # キー入力無し
+        ( 5, 0):pg.transform.rotozoom(kk_img,  0,0.9), # 右
+        ( 5,-5):pg.transform.rotozoom(kk_img, 45,0.9), # 右上
+        ( 0,-5):pg.transform.rotozoom(kk_img, 90,0.9), #上
+        (-5,-5):pg.transform.rotozoom(kk_img, 45,0.9), #左上
+        (-5, 0):pg.transform.rotozoom(kk_img,  0,0.9), #左
+        (-5, 5):pg.transform.rotozoom(kk_img,-45,0.9), #左下
+        ( 0, 5):pg.transform.rotozoom(kk_img,-90,0.9), #下
+        ( 5, 5):pg.transform.rotozoom(kk_img,-45,0.9), # 右下
+    }
+    return kk_dict
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -64,13 +91,14 @@ def main():
     bb_img.set_colorkey((0, 0, 0))
     pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
     bb_rct = bb_img.get_rect()
-    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT) # 爆弾ランダム生成
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT) # 爆弾の初期位置ランダム生成
     vx, vy = +5, +5 # 爆弾の速度
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
     clock = pg.time.Clock()
     tmr = 0
-    bb_imgs, bb_accs = init_bb_imgs() # リスト取得
+    bb_imgs, bb_accs = init_bb_imgs() # 爆弾リスト取得
+    kk_imgs = get_kk_imgs() # 角度に応じた向きの辞書取得
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -96,6 +124,9 @@ def main():
                 sum_mv[0] += mv[0] # 横方向
                 sum_mv[1] += mv[1] # 縦方向
 
+        kk_img = kk_imgs[tuple(sum_mv)]
+        if sum_mv[0] < 0:
+            kk_img = pg.transform.flip(kk_img,True,False) # 左を向いている時は左右反転
         kk_rct.move_ip(sum_mv)
         if check_bound(kk_rct) != (True, True):
             kk_rct.move_ip(-sum_mv[0], -sum_mv[1]) # 移動取り消し
@@ -109,10 +140,10 @@ def main():
         yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx *= -1
-            avx *= -1
+            avx *= -1 # 左右の壁に当たったら左右反転
         if not tate:
             vy *= -1
-            avy *= -1
+            avy *= -1 # 上下の壁に当たったら上下反転
         if abs(vx) > abs(avx): # 絶対値vxが絶対値avxより大きいならvxとvyで、でなければavxとavyで動かす
             bb_rct.move_ip(vx,vy)
         else:
