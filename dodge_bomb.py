@@ -72,11 +72,11 @@ def get_kk_imgs():
         ( 0, 0):pg.transform.rotozoom(kk_img,  0,0.9), # キー入力無し
         ( 5, 0):pg.transform.rotozoom(kk_img,  0,0.9), # 右
         ( 5,-5):pg.transform.rotozoom(kk_img, 45,0.9), # 右上
-        ( 0,-5):pg.transform.rotozoom(kk_img, 90,0.9), #上
-        (-5,-5):pg.transform.rotozoom(kk_img, 45,0.9), #左上
-        (-5, 0):pg.transform.rotozoom(kk_img,  0,0.9), #左
-        (-5, 5):pg.transform.rotozoom(kk_img,-45,0.9), #左下
-        ( 0, 5):pg.transform.rotozoom(kk_img,-90,0.9), #下
+        ( 0,-5):pg.transform.rotozoom(kk_img, 90,0.9), # 上
+        (-5,-5):pg.transform.rotozoom(kk_img, 45,0.9), # 左上
+        (-5, 0):pg.transform.rotozoom(kk_img,  0,0.9), # 左
+        (-5, 5):pg.transform.rotozoom(kk_img,-45,0.9), # 左下
+        ( 0, 5):pg.transform.rotozoom(kk_img,-90,0.9), # 下
         ( 5, 5):pg.transform.rotozoom(kk_img,-45,0.9), # 右下
     }
     return kk_dict
